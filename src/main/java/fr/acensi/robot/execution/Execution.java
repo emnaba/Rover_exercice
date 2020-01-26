@@ -10,23 +10,24 @@ public class Execution {
 
     public static void main(String[] args) throws IOException {
         final File RESOURCE_LOCATION;
-        final String path;
+        final String PATH;
         String inputPath;
         String mappingPath;
+        final String MAPPING_FILE_NAME = "mapping.properties";
 
         try {
             RESOURCE_LOCATION = new File(ClassLoader
                     .getSystemClassLoader()
                     .getResource("")
                     .getFile());
-            path = RESOURCE_LOCATION.getAbsolutePath();
-            inputPath = path + File.separator + args[0];
-            mappingPath = path + File.separator + "mapping.properties";
+            PATH = RESOURCE_LOCATION.getAbsolutePath();
+            inputPath = PATH + File.separator + args[0];
+            mappingPath = PATH + File.separator + MAPPING_FILE_NAME;
         } catch (Exception e) {
             inputPath = args[0];
-            mappingPath = "mapping.properties";
+            mappingPath = MAPPING_FILE_NAME;
         }
         List<String> lines = Services.getLinesFromFile(inputPath);
-        Services.interpretLines(lines, mappingPath);
+        System.out.println(Services.interpretLines(lines, mappingPath));
     }
 }

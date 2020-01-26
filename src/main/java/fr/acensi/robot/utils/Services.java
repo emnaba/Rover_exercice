@@ -1,6 +1,5 @@
 package fr.acensi.robot.utils;
 
-
 import fr.acensi.robot.command.Command;
 import fr.acensi.robot.command.CommandEnum;
 import fr.acensi.robot.model.Plateau;
@@ -10,7 +9,9 @@ import fr.acensi.robot.model.Rover;
 import fr.acensi.robot.states.DirectionEnum;
 import fr.acensi.robot.states.RoverDirectionState;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,6 +22,22 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Services {
+
+    /**
+     * execute commands for a given robot from given text.
+     * ensure that one robot is moving
+     *
+     * @param commandLine text that contains commands
+     * @param robot       rover to control
+     */
+    private synchronized static void executeCommands(String commandLine, Robot robot) {
+        Stream<Character> streamChars = toCharsByStream(commandLine);
+        streamChars.forEach(character -> {
+            Command command = CommandEnum.valueOf(character.toString()).getCommand();
+            command.setRobot(robot);
+            command.execute();
+        });
+    }
 
     public static List<String> getLinesFromFile(String filePath) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
@@ -40,7 +57,8 @@ public class Services {
         return null;
     }
 
-    public static void interpretLines(List<String> lines, String mappingPath) {
+    public static String interpretLines(List<String> lines, String mappingPath) {
+        StringJoiner result = new StringJoiner("\n");
         if (lines != null && !lines.isEmpty()) {
             Plateau plateau = getPlateau(lines.get(0));
             IntStream.range(1, lines.size())
@@ -50,25 +68,11 @@ public class Services {
                                 String commandLine = lines.get(index + 1);
                                 Rover rover = createRover(roverParams, plateau);
                                 executeCommands(commandLine, rover);
-                                try {
-                                    printRover(rover, getMappingProperties(mappingPath));
-                                } catch (FileNotFoundException e) {
-                                    //TODO
-                                }
+                                result.add(printRover(rover, getMappingProperties(mappingPath)));
                             }
                     );
         }
-
-
-    }
-
-    private static void executeCommands(String commandLine, Robot robot) {
-        Stream<Character> streamChars = toCharsByStream(commandLine);
-        streamChars.forEach(character -> {
-            Command command = CommandEnum.valueOf(character.toString()).getCommand();
-            command.setRobot(robot);
-            command.execute();
-        });
+        return result.toString();
     }
 
     private static Rover createRover(String[] params, Plateau plateau) {
@@ -89,7 +93,7 @@ public class Services {
         return characterStream;
     }
 
-    public static Properties getMappingProperties(String mappingPath) throws FileNotFoundException {
+    public static Properties getMappingProperties(String mappingPath) {
         Properties properties = new Properties();
         try (InputStream inputStream = new FileInputStream(mappingPath)) {
             properties.load(inputStream);
@@ -99,12 +103,12 @@ public class Services {
         return properties;
     }
 
-    public static void printRover(Rover rover, Properties properties) {
+    public static String printRover(Rover rover, Properties properties) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         stringJoiner.add(Integer.toString(rover.getPosition().getX()));
         stringJoiner.add(Integer.toString(rover.getPosition().getY()));
         String direction = rover.getDirection().getClass().getSimpleName();
         stringJoiner.add((String) properties.get(direction));
-        System.out.println(stringJoiner);
+        return stringJoiner.toString();
     }
 }

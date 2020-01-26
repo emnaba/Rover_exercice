@@ -16,16 +16,16 @@ public class Rover implements Robot {
         this.plateau = plateau;
     }
 
-    public synchronized void move() {
+    public void move() {
         direction.move(this);
     }
 
-    public synchronized void turnRight() {
+    public void turnRight() {
         direction.turnRight(this);
     }
 
-    public synchronized void turnLeft() {
-        direction.turnRight(this);
+    public void turnLeft() {
+        direction.turnLeft(this);
     }
 
     public Position getPosition() {
