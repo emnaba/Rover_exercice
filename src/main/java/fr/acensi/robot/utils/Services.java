@@ -22,20 +22,13 @@ import java.util.stream.Stream;
 
 public class Services {
 
-    private static final File RESOURCE_LOCATION = new File(ClassLoader
-            .getSystemClassLoader()
-            .getResource("")
-            .getFile());
-
-    private static String path = RESOURCE_LOCATION.getAbsolutePath();
-
     public static List<String> getLinesFromFile(String filePath) throws IOException {
         try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
             return stream.collect(Collectors.toList());
         }
     }
 
-    public  static Plateau getPlateau(String firstLine) {
+    public static Plateau getPlateau(String firstLine) {
         if (firstLine != null && !firstLine.isEmpty()) {
             String[] xY = firstLine.split(" ");
             if (xY.length != 2) {
@@ -47,7 +40,7 @@ public class Services {
         return null;
     }
 
-    public static void interpretLines(List<String> lines,String mappingPath) {
+    public static void interpretLines(List<String> lines, String mappingPath) {
         if (lines != null && !lines.isEmpty()) {
             Plateau plateau = getPlateau(lines.get(0));
             IntStream.range(1, lines.size())
@@ -78,7 +71,7 @@ public class Services {
         });
     }
 
-    private  static Rover createRover(String[] params, Plateau plateau) {
+    private static Rover createRover(String[] params, Plateau plateau) {
         int x = Integer.valueOf(params[0]);
         int y = Integer.valueOf(params[1]);
         Position position = new Position(x, y);
@@ -90,7 +83,7 @@ public class Services {
      * @param text
      * @return
      */
-    public  static Stream<Character> toCharsByStream(String text) {
+    public static Stream<Character> toCharsByStream(String text) {
         IntStream intStream = text.chars();
         Stream<Character> characterStream = intStream.mapToObj(c -> (char) c);
         return characterStream;
@@ -106,7 +99,7 @@ public class Services {
         return properties;
     }
 
-    public  static void printRover(Rover rover, Properties properties) {
+    public static void printRover(Rover rover, Properties properties) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         stringJoiner.add(Integer.toString(rover.getPosition().getX()));
         stringJoiner.add(Integer.toString(rover.getPosition().getY()));
