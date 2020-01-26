@@ -9,8 +9,6 @@ public enum CommandEnum {
 
 
     private Command command;
-    private Rover rover;
-
 
     CommandEnum(Command command) {
         this.command = command;

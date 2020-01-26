@@ -39,24 +39,42 @@ public class Services {
         });
     }
 
-    public static List<String> getLinesFromFile(String filePath) throws IOException {
-        try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
-            return stream.collect(Collectors.toList());
-        }
+    /**
+     * convert a given text to list of chars
+     *
+     * @param text including the command to execute
+     * @return a stream of characters
+     */
+    public static Stream<Character> toCharsByStream(String text) {
+        IntStream intStream = text.chars();
+        Stream<Character> characterStream = intStream.mapToObj(c -> (char) c);
+        return characterStream;
     }
 
-    public static Plateau getPlateau(String firstLine) {
-        if (firstLine != null && !firstLine.isEmpty()) {
-            String[] xY = firstLine.split(" ");
-            if (xY.length != 2) {
-                //exception
-            } else {
-                return new Plateau(Integer.valueOf(xY[0]), Integer.valueOf(xY[1]));
-            }
+    /**
+     * read from a given path of mapping.properties file
+     *
+     * @param mappingPath path of the file
+     * @return properties for each direction
+     */
+    public static Properties getMappingProperties(String mappingPath) {
+        Properties properties = new Properties();
+        try (InputStream inputStream = new FileInputStream(mappingPath)) {
+            properties.load(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null;
+        return properties;
     }
 
+    /**
+     * interpret the lines of the input file, creates instances of rovers
+     * and for each rover execute the corresponding command
+     *
+     * @param lines       list of lines
+     * @param mappingPath path of input file
+     * @return the output position of each rover
+     */
     public static String interpretLines(List<String> lines, String mappingPath) {
         StringJoiner result = new StringJoiner("\n");
         if (lines != null && !lines.isEmpty()) {
@@ -75,6 +93,21 @@ public class Services {
         return result.toString();
     }
 
+    public static List<String> getLinesFromFile(String filePath) throws IOException {
+        try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
+            return stream.collect(Collectors.toList());
+        }
+    }
+
+    public static Plateau getPlateau(String firstLine) {
+        if (firstLine != null && !firstLine.isEmpty()) {
+            String[] xY = firstLine.split(" ");
+            return new Plateau(Integer.valueOf(xY[0]), Integer.valueOf(xY[1]));
+        }
+        return null;
+    }
+
+
     private static Rover createRover(String[] params, Plateau plateau) {
         int x = Integer.valueOf(params[0]);
         int y = Integer.valueOf(params[1]);
@@ -83,25 +116,6 @@ public class Services {
         return new Rover(position, directionState, plateau);
     }
 
-    /**
-     * @param text
-     * @return
-     */
-    public static Stream<Character> toCharsByStream(String text) {
-        IntStream intStream = text.chars();
-        Stream<Character> characterStream = intStream.mapToObj(c -> (char) c);
-        return characterStream;
-    }
-
-    public static Properties getMappingProperties(String mappingPath) {
-        Properties properties = new Properties();
-        try (InputStream inputStream = new FileInputStream(mappingPath)) {
-            properties.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return properties;
-    }
 
     public static String printRover(Rover rover, Properties properties) {
         StringJoiner stringJoiner = new StringJoiner(" ");
